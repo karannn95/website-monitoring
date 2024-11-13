@@ -1,0 +1,13 @@
+This project provides a complete AWS infrastructure setup for a client migrating from on-premise physical servers to the cloud. The infrastructure includes the following components:
+
+    Virtual Private Cloud (VPC)
+    Public and Private Subnets
+    Internet Gateway (IGW) and NAT Gateway
+    Security Groups and Network ACLs (NACL)
+    Elastic File System (EFS) and S3 buckets
+    Jump Server (Bastion Host)
+    EC2 instances (Web and Database servers)
+    Load Balancer with Auto-Scaling
+    Amazon SNS for notifications
+
+The infrastructure is designed to provide high availability, scalability, and security with resources distributed across different Availability Zones (AZs).

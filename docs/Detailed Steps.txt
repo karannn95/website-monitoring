@@ -1,0 +1,103 @@
+Detailed Steps 
+
+1. VPC Creation
+
+    Purpose: A Virtual Private Cloud (VPC) is the fundamental building block for your AWS environment. It allows you to define your own network and segregate resources into different subnets.
+
+    Steps:
+        Go to the VPC dashboard and click Create VPC.
+        Name your VPC (myvpc) and define an IPv4 CIDR block (e.g., 10.0.0.0/16).
+        Click Create.
+
+2. Subnets Configuration
+
+    Purpose: Subnets allow you to organize your resources within your VPC into different network segments. Typically, we create public subnets for resources that need internet access and private subnets for databases or internal services.
+
+    Steps:
+        Create 3 subnets in the VPC:
+            Public Subnet 1: 10.0.1.0/24 in us-east-1a
+            Public Subnet 2: 10.0.2.0/24 in us-east-1b
+            Private Subnet: 10.0.3.0/24 in us-east-1c
+        Modify the subnet settings to enable auto-assign Public IP for the public subnets.
+
+3. Internet Gateway (IGW) and NAT Gateway
+
+    Purpose: The IGW provides internet access to resources in the public subnet, while the NAT Gateway enables outbound internet access for resources in the private subnet.
+
+    Steps:
+        Create and attach an Internet Gateway (IGW) to the VPC.
+        Create a NAT Gateway in the public subnet us-east-1a and associate an Elastic IP (EIP).
+        Modify the route tables:
+            Attach Internet Gateway to the public subnets.
+            Attach NAT Gateway to the private subnet for outbound internet access.
+
+4. Security Groups and Network ACL
+
+    Purpose: Security Groups (SGs) control inbound and outbound traffic to EC2 instances. Network ACLs control traffic at the subnet level.
+
+    Steps:
+        Create a Security Group (WebSG) for the web servers with inbound rules for HTTP (port 80) and SSH (port 22).
+        Create a Network ACL (NACL) with rules to allow SSH and HTTP and deny all other traffic.
+
+5. Elastic File System (EFS) and S3 Bucket
+
+    Purpose: Amazon EFS is a scalable file storage solution that can be mounted on EC2 instances. S3 is used for object storage (for logs, backups, etc.).
+
+    Steps:
+        Create an EFS instance and mount it on web servers.
+        Create S3 buckets for storing flow logs and other data, such as firstbucket-dekrd, secondbucket-eer39rj.
+
+6. EC2 Instances (Web and Database Servers)
+
+    Purpose: EC2 instances provide compute capacity. In this case, web servers are launched in public subnets, while the database server is in the private subnet.
+
+    Steps:
+        Launch EC2 instances for the web servers (t2.micro instance type).
+        Launch a database server in the private subnet (for example, an Amazon Linux instance).
+
+7. Auto Scaling and Load Balancer
+
+    Purpose: Auto Scaling ensures that the right number of EC2 instances are running to handle your application load. The Load Balancer distributes traffic across the instances.
+
+    Steps:
+        Set up an Auto Scaling Group with a minimum of 2 instances and a maximum of 10 instances.
+        Attach the Auto Scaling group to a Classic Load Balancer.
+
+8. Elastic IP and Jump Server
+
+    Purpose: A Jump Server (Bastion Host) is an intermediary server that allows secure access to other instances in the private subnets.
+
+    Steps:
+        Launch a Jump Server in the public subnet, allowing SSH access to private instances.
+        Optionally, assign an Elastic IP to this server.
+
+
+Testing and Validation
+
+1. Test Web Server Access
+
+    After launching EC2 instances, take the public IP of any web server and access it via a browser (http://<public-ip>). You should see the "MyGoogle" page.
+
+    Access the Load Balancer's DNS name to check if traffic is being properly routed to the web servers.
+
+2. Verify EFS and S3 Mount
+
+    SSH into the web server and verify if EFS is mounted (df -h).
+    Test S3 bucket mounting with s3fs and verify access to the bucket.
+
+3. Test Jump Server Access
+
+    SSH into the Jump Server from your local machine.
+    From the Jump Server, SSH into the database server in the private subnet.
+
+4. Verify Auto Scaling Behavior
+
+    Monitor the Auto Scaling Group to ensure it maintains the desired number of instances based on load.
+    Check the CloudWatch dashboard for metrics like CPU Utilization.
+
+5. Security and Best Practices
+
+    Security Groups: Ensure that only the required ports are open, and restrict access to only necessary IP addresses.
+    IAM Roles and Policies: Use IAM roles for EC2 instances to access S3 and other AWS services securely.
+    Backups and Monitoring: Regularly back up your data and set up monitoring through CloudWatch to track performance and health metrics.
+    Network Segmentation: Use subnets and NACLs to isolate different parts of the infrastructure for better security.
